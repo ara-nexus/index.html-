@@ -1,0 +1,2013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chezzy Shop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.383.0/umd/lucide.min.js"></script>
+<style>
+  :root{
+    --ink:#0F1115;
+    --ink-soft:#1B1E26;
+    --paper:#FFFFFF;
+    --paper-warm:#F7F5F2;
+    --cheddar:#FFC93C;
+    --cheddar-deep:#E6A800;
+    --flash:#FF5470;
+    --mint:#2FBE83;
+    --violet:#6B5BFF;
+    --line:#E7E3DC;
+    --line-dark:#2A2E38;
+    --muted:#6B7280;
+    --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Inter',sans-serif;
+    color:var(--ink);
+    background:var(--paper-warm);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4,.display{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    letter-spacing:-0.02em;
+    line-height:1.05;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;cursor:pointer;border:none;}
+  img{display:block;max-width:100%;}
+  :focus-visible{outline:3px solid var(--violet);outline-offset:2px;}
+
+  /* Layout helpers */
+  .wrap{max-width:1280px;margin:0 auto;padding:0 24px;}
+  .skip-link{position:absolute;left:-9999px;}
+  .skip-link:focus{left:8px;top:8px;background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px;z-index:999;}
+
+  /* ---------- TOPBAR ---------- */
+  .topbar{background:var(--ink);color:#fff;font-size:13px;}
+  .topbar .wrap{display:flex;justify-content:space-between;align-items:center;height:36px;}
+  .topbar a{opacity:.8;transition:opacity .15s;}
+  .topbar a:hover{opacity:1;}
+  .topbar .left{display:flex;gap:18px;align-items:center;}
+  .topbar .right{display:flex;gap:16px;}
+  @media (max-width:720px){ .topbar .left span:last-child{display:none;} }
+
+  /* ---------- HEADER ---------- */
+  header.site{
+    background:var(--paper);
+    border-bottom:2px solid var(--ink);
+    position:sticky;top:0;z-index:100;
+  }
+  header.site .wrap{display:flex;align-items:center;gap:28px;height:76px;}
+  .logo{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .logo-mark{
+    width:40px;height:40px;background:var(--cheddar);
+    border:2px solid var(--ink);border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Space Grotesk';font-weight:800;font-size:20px;
+    transform:rotate(-6deg);
+  }
+  .logo-text{font-size:22px;font-weight:800;}
+  .logo-text span{color:var(--flash);}
+
+  nav.main-nav{display:flex;gap:28px;font-weight:600;font-size:15px;flex:1;}
+  nav.main-nav a{position:relative;padding:6px 0;}
+  nav.main-nav a.active{color:var(--flash);}
+  nav.main-nav a::after{
+    content:'';position:absolute;left:0;bottom:0;height:3px;width:0;
+    background:var(--cheddar);transition:width .2s;
+  }
+  nav.main-nav a:hover::after{width:100%;}
+
+  .search-bar{
+    flex:1;max-width:420px;display:flex;align-items:center;
+    border:2px solid var(--ink);border-radius:999px;padding:8px 16px;gap:10px;
+    background:var(--paper-warm);
+  }
+  .search-bar input{flex:1;border:none;background:none;font-size:14px;outline:none;font-family:inherit;}
+  .header-icons{display:flex;gap:10px;align-items:center;}
+  .icon-btn{
+    width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    border:2px solid var(--ink);background:var(--paper);position:relative;transition:transform .15s, background .15s;
+  }
+  .icon-btn:hover{background:var(--cheddar);transform:translateY(-2px);}
+  .badge{
+    position:absolute;top:-8px;right:-8px;background:var(--flash);color:#fff;
+    font-size:11px;font-weight:700;border-radius:999px;min-width:20px;height:20px;
+    display:flex;align-items:center;justify-content:center;border:2px solid var(--paper);padding:0 4px;
+  }
+  .nav-toggle{display:none;}
+  @media (max-width:980px){
+    nav.main-nav, .search-bar{display:none;}
+    .nav-toggle{display:flex;}
+  }
+
+  /* ---------- BUTTONS ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:14px 28px;border-radius:999px;font-weight:700;font-size:15px;
+    border:2px solid var(--ink);transition:transform .15s, box-shadow .15s, background .15s;
+    white-space:nowrap;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--cheddar);color:var(--ink);box-shadow:4px 4px 0 var(--ink);}
+  .btn-primary:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink);}
+  .btn-dark{background:var(--ink);color:#fff;box-shadow:4px 4px 0 var(--cheddar);}
+  .btn-dark:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--cheddar);}
+  .btn-outline{background:transparent;color:var(--ink);}
+  .btn-outline:hover{background:var(--ink);color:#fff;}
+  .btn-ghost{background:var(--paper);color:var(--ink);box-shadow:none;}
+  .btn-ghost:hover{background:var(--paper-warm);}
+  .btn-flash{background:var(--flash);color:#fff;border-color:var(--ink);box-shadow:4px 4px 0 var(--ink);}
+  .btn-flash:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink);}
+  .btn-sm{padding:9px 18px;font-size:13px;box-shadow:3px 3px 0 var(--ink);}
+  .btn-block{width:100%;}
+  .btn[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none !important;transform:none !important;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background:var(--ink);color:#fff;position:relative;overflow:hidden;
+    padding:64px 0 0;
+  }
+  .hero .wrap{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;}
+  .hero-eyebrow{
+    display:inline-flex;align-items:center;gap:8px;background:var(--cheddar);color:var(--ink);
+    font-family:'JetBrains Mono';font-weight:700;font-size:12px;letter-spacing:.08em;
+    padding:6px 14px;border-radius:999px;text-transform:uppercase;margin-bottom:20px;
+  }
+  .hero h1{font-size:clamp(40px,6vw,68px);}
+  .hero h1 .hl{color:var(--cheddar);}
+  .hero h1 .hl2{color:var(--flash);}
+  .hero p.lead{font-size:18px;color:#C7CAD3;margin:20px 0 32px;max-width:460px;}
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;}
+
+  .hero-visual{position:relative;height:480px;}
+  .price-tag{
+    position:absolute;background:var(--paper);border:2px solid var(--ink);border-radius:12px;
+    padding:18px 20px;box-shadow:6px 6px 0 rgba(0,0,0,.35);color:var(--ink);
+  }
+  .price-tag::before{
+    content:'';position:absolute;width:14px;height:14px;background:var(--ink);border-radius:50%;
+    top:50%;left:-7px;transform:translateY(-50%);
+  }
+  .price-tag .ptag-name{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:4px;}
+  .price-tag .ptag-price{font-family:'JetBrains Mono';font-weight:700;font-size:22px;}
+  .tag-1{top:6%;right:8%;transform:rotate(6deg);width:200px;background:var(--cheddar);}
+  .tag-2{top:42%;left:0%;transform:rotate(-4deg);width:210px;}
+  .tag-3{bottom:6%;right:14%;transform:rotate(4deg);width:190px;background:var(--mint);color:var(--ink);}
+  .hero-blob{
+    position:absolute;width:340px;height:340px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, var(--violet), transparent 70%);
+    opacity:.35;top:10%;left:30%;filter:blur(10px);
+  }
+  @media (max-width:900px){
+    .hero .wrap{grid-template-columns:1fr;}
+    .hero-visual{height:340px;margin-top:20px;}
+    .price-tag{transform:none !important;}
+    .tag-1{top:0;right:0;width:170px;}
+    .tag-2{top:38%;left:0;width:180px;}
+    .tag-3{bottom:0;right:10%;width:160px;}
+  }
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:72px 0;}
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:32px;gap:20px;flex-wrap:wrap;}
+  .section-head h2{font-size:clamp(28px,4vw,40px);}
+  .section-head .sub{color:var(--muted);font-size:15px;margin-top:6px;}
+  .eyebrow{
+    font-family:'JetBrains Mono';font-size:12px;font-weight:700;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--flash);margin-bottom:10px;display:block;
+  }
+
+  /* ---------- CATEGORY TAGS ---------- */
+  .cat-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:20px;}
+  @media (max-width:980px){.cat-grid{grid-template-columns:repeat(3,1fr);}}
+  @media (max-width:560px){.cat-grid{grid-template-columns:repeat(2,1fr);}}
+  .cat-card{
+    background:var(--paper);border:2px solid var(--ink);border-radius:var(--radius);
+    padding:24px 16px;text-align:center;cursor:pointer;
+    transition:transform .18s, box-shadow .18s, background .18s;
+    box-shadow:4px 4px 0 var(--ink);
+  }
+  .cat-card:hover{transform:rotate(-2deg) translateY(-4px);box-shadow:6px 8px 0 var(--ink);background:var(--cheddar);}
+  .cat-card .ic{font-size:30px;margin-bottom:10px;display:block;}
+  .cat-card .name{font-weight:700;font-size:14px;}
+
+  /* ---------- PRODUCT CARD ---------- */
+  .product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+  @media (max-width:1100px){.product-grid{grid-template-columns:repeat(3,1fr);}}
+  @media (max-width:760px){.product-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:460px){.product-grid{grid-template-columns:1fr;}}
+  .pcard{
+    background:var(--paper);border:2px solid var(--ink);border-radius:var(--radius);
+    overflow:hidden;display:flex;flex-direction:column;transition:transform .18s, box-shadow .18s;
+    box-shadow:4px 4px 0 transparent;
+  }
+  .pcard:hover{transform:translateY(-4px);box-shadow:5px 6px 0 var(--ink);}
+  .pcard-img{
+    aspect-ratio:1/1;background:var(--paper-warm);position:relative;display:flex;align-items:center;justify-content:center;
+    border-bottom:2px solid var(--ink);overflow:hidden;
+  }
+  .pcard-img .ic{font-size:54px;}
+  .pcard-badge{
+    position:absolute;top:10px;left:10px;background:var(--flash);color:#fff;
+    font-family:'JetBrains Mono';font-weight:700;font-size:11px;padding:4px 10px;border-radius:999px;
+  }
+  .pcard-badge.new{background:var(--mint);color:var(--ink);}
+  .pcard-badge.hot{background:var(--violet);color:#fff;}
+  .pcard-wish{
+    position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;
+    background:#fff;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;
+    transition:background .15s;
+  }
+  .pcard-wish:hover{background:var(--cheddar);}
+  .pcard-body{padding:16px;display:flex;flex-direction:column;gap:8px;flex:1;}
+  .pcard-cat{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+  .pcard-name{font-weight:700;font-size:15px;line-height:1.3;}
+  .pcard-rating{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);}
+  .pcard-rating .stars{color:var(--cheddar-deep);}
+  .pcard-prices{display:flex;align-items:baseline;gap:8px;margin-top:auto;}
+  .pcard-price{font-family:'JetBrains Mono';font-weight:700;font-size:18px;}
+  .pcard-old{font-family:'JetBrains Mono';font-size:13px;color:var(--muted);text-decoration:line-through;}
+  .pcard-actions{display:flex;gap:8px;padding:0 16px 16px;}
+  .pcard-actions .btn{flex:1;padding:10px;font-size:13px;}
+
+  /* ---------- TABS ---------- */
+  .tabs-row{display:flex;gap:10px;flex-wrap:wrap;}
+  .tab-btn{
+    padding:10px 20px;border-radius:999px;border:2px solid var(--ink);background:var(--paper);
+    font-weight:700;font-size:13px;transition:.15s;
+  }
+  .tab-btn.active{background:var(--ink);color:#fff;}
+  .tab-btn:hover:not(.active){background:var(--paper-warm);}
+
+  /* ---------- FLASH DEALS BAND ---------- */
+  .flash-band{background:var(--ink);color:#fff;}
+  .flash-band .section-head h2{color:#fff;}
+  .flash-band .section-head .sub{color:#9CA1AE;}
+  .countdown{display:flex;gap:10px;}
+  .countdown .cell{
+    background:var(--flash);border:2px solid #fff;border-radius:10px;
+    padding:8px 12px;text-align:center;min-width:58px;
+  }
+  .countdown .cell .num{font-family:'JetBrains Mono';font-size:20px;font-weight:700;}
+  .countdown .cell .lab{font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.8;}
+  .flash-band .pcard{background:var(--ink-soft);border-color:var(--line-dark);color:#fff;}
+  .flash-band .pcard-img{background:#262B36;border-color:var(--line-dark);}
+  .flash-band .pcard-cat{color:#9CA1AE;}
+  .flash-band .pcard-wish{background:var(--ink-soft);border-color:var(--line-dark);}
+  .flash-band .pcard:hover{box-shadow:5px 6px 0 var(--cheddar);}
+
+  /* ---------- WHY CHOOSE US ---------- */
+  .why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+  @media (max-width:900px){.why-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:520px){.why-grid{grid-template-columns:1fr;}}
+  .why-card{
+    background:var(--paper);border:2px solid var(--ink);border-radius:var(--radius);
+    padding:28px 22px;text-align:left;
+  }
+  .why-card .ic-wrap{
+    width:52px;height:52px;border-radius:12px;background:var(--cheddar);border:2px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;margin-bottom:16px;
+  }
+  .why-card h3{font-size:17px;margin-bottom:6px;}
+  .why-card p{font-size:14px;color:var(--muted);line-height:1.5;}
+
+  /* ---------- TESTIMONIALS ---------- */
+  .testi-track{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  @media (max-width:900px){.testi-track{grid-template-columns:1fr;}}
+  .testi-card{
+    background:var(--paper);border:2px solid var(--ink);border-radius:var(--radius);
+    padding:24px;display:flex;flex-direction:column;gap:14px;
+  }
+  .testi-stars{color:var(--cheddar-deep);font-size:14px;}
+  .testi-quote{font-size:15px;line-height:1.6;color:var(--ink);}
+  .testi-person{display:flex;align-items:center;gap:12px;margin-top:auto;}
+  .testi-avatar{
+    width:40px;height:40px;border-radius:50%;background:var(--violet);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Space Grotesk';
+  }
+  .testi-name{font-weight:700;font-size:14px;}
+  .testi-role{font-size:12px;color:var(--muted);}
+
+  /* ---------- NEWSLETTER ---------- */
+  .newsletter{
+    background:var(--cheddar);border:2px solid var(--ink);border-radius:24px;
+    padding:48px;display:flex;justify-content:space-between;align-items:center;gap:32px;flex-wrap:wrap;
+    box-shadow:8px 8px 0 var(--ink);
+  }
+  .newsletter h2{font-size:clamp(24px,4vw,34px);max-width:420px;}
+  .newsletter p{margin-top:8px;color:var(--ink-soft);font-size:15px;}
+  .newsletter-form{display:flex;gap:10px;flex:1;max-width:440px;min-width:260px;}
+  .newsletter-form input{
+    flex:1;padding:14px 18px;border-radius:999px;border:2px solid var(--ink);font-family:inherit;font-size:14px;outline:none;
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer.site{background:var(--ink);color:#C7CAD3;padding:64px 0 0;margin-top:40px;}
+  .footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:40px;padding-bottom:48px;border-bottom:1px solid var(--line-dark);}
+  @media (max-width:900px){.footer-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:560px){.footer-grid{grid-template-columns:1fr;}}
+  .footer-grid h4{color:#fff;font-size:14px;margin-bottom:16px;text-transform:uppercase;letter-spacing:.08em;font-family:'JetBrains Mono';}
+  .footer-grid ul{list-style:none;display:flex;flex-direction:column;gap:10px;font-size:14px;}
+  .footer-grid ul a:hover{color:var(--cheddar);}
+  .footer-brand p{font-size:14px;line-height:1.6;margin:14px 0 18px;max-width:280px;}
+  .footer-contact{display:flex;flex-direction:column;gap:10px;font-size:14px;}
+  .footer-contact a{display:flex;align-items:center;gap:8px;}
+  .footer-contact a:hover{color:var(--cheddar);}
+  .social-row{display:flex;gap:10px;margin-top:16px;}
+  .social-row a{
+    width:38px;height:38px;border-radius:10px;border:1px solid var(--line-dark);
+    display:flex;align-items:center;justify-content:center;transition:.15s;
+  }
+  .social-row a:hover{background:var(--cheddar);color:var(--ink);border-color:var(--cheddar);}
+  .footer-bottom{padding:24px 0;display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#7E8494;flex-wrap:wrap;gap:10px;}
+
+  /* ---------- BREADCRUMB / PAGE HEADER ---------- */
+  .page-header{background:var(--ink);color:#fff;padding:36px 0;}
+  .page-header h1{font-size:clamp(28px,4vw,40px);}
+  .crumbs{font-size:13px;color:#9CA1AE;margin-top:8px;font-family:'JetBrains Mono';}
+  .crumbs a:hover{color:var(--cheddar);}
+
+  /* ---------- SHOP PAGE ---------- */
+  .shop-layout{display:grid;grid-template-columns:260px 1fr;gap:32px;align-items:flex-start;}
+  @media (max-width:880px){.shop-layout{grid-template-columns:1fr;}}
+  .filter-panel{
+    background:var(--paper);border:2px solid var(--ink);border-radius:var(--radius);
+    padding:22px;position:sticky;top:96px;
+  }
+  .filter-block{padding:18px 0;border-bottom:1px solid var(--line);}
+  .filter-block:first-child{padding-top:0;}
+  .filter-block:last-child{border-bottom:none;padding-bottom:0;}
+  .filter-block h4{font-size:13px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;font-family:'JetBrains Mono';}
+  .filter-row{display:flex;align-items:center;gap:10px;font-size:14px;padding:5px 0;cursor:pointer;}
+  .filter-row input{width:16px;height:16px;accent-color:var(--flash);}
+  .range-row{display:flex;align-items:center;gap:10px;}
+  .range-row input[type=range]{flex:1;accent-color:var(--flash);}
+  .range-val{font-family:'JetBrains Mono';font-size:13px;font-weight:700;}
+  .star-row{color:var(--cheddar-deep);font-size:14px;}
+
+  .shop-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:16px;flex-wrap:wrap;}
+  .shop-toolbar .count{font-size:14px;color:var(--muted);}
+  .select-box{
+    border:2px solid var(--ink);border-radius:999px;padding:10px 18px;font-weight:700;font-size:13px;
+    background:var(--paper);display:flex;align-items:center;gap:8px;
+  }
+  .select-box select{border:none;background:none;font-family:inherit;font-weight:700;font-size:13px;outline:none;}
+
+  .pagination{display:flex;justify-content:center;gap:8px;margin-top:48px;}
+  .page-btn{
+    width:40px;height:40px;border-radius:10px;border:2px solid var(--ink);background:var(--paper);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;transition:.15s;
+  }
+  .page-btn.active{background:var(--ink);color:#fff;}
+  .page-btn:hover:not(.active){background:var(--cheddar);}
+
+  /* ---------- PRODUCT PAGE ---------- */
+  .product-layout{display:grid;grid-template-columns:1fr 1fr;gap:48px;}
+  @media (max-width:880px){.product-layout{grid-template-columns:1fr;}}
+  .gallery-main{
+    aspect-ratio:1/1;background:var(--paper);border:2px solid var(--ink);border-radius:var(--radius);
+    display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;cursor:zoom-in;
+    margin-bottom:14px;
+  }
+  .gallery-main .ic{font-size:120px;transition:transform .3s;}
+  .gallery-main:hover .ic{transform:scale(1.15);}
+  .zoom-pill{
+    position:absolute;bottom:14px;right:14px;background:var(--ink);color:#fff;font-size:12px;
+    font-weight:700;padding:6px 14px;border-radius:999px;display:flex;align-items:center;gap:6px;
+  }
+  .gallery-thumbs{display:flex;gap:10px;}
+  .gthumb{
+    width:72px;height:72px;border-radius:10px;border:2px solid var(--line);background:var(--paper);
+    display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;transition:.15s;
+  }
+  .gthumb.active{border-color:var(--ink);background:var(--cheddar);}
+
+  .pp-cat{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--flash);font-family:'JetBrains Mono';}
+  .pp-title{font-size:clamp(26px,4vw,36px);margin:8px 0 10px;}
+  .pp-rating{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);margin-bottom:16px;}
+  .pp-rating .stars{color:var(--cheddar-deep);}
+  .pp-price-row{display:flex;align-items:baseline;gap:14px;margin-bottom:6px;}
+  .pp-price{font-family:'JetBrains Mono';font-weight:700;font-size:32px;}
+  .pp-old{font-family:'JetBrains Mono';font-size:18px;color:var(--muted);text-decoration:line-through;}
+  .pp-discount{
+    background:var(--flash);color:#fff;font-weight:700;font-size:13px;padding:4px 12px;border-radius:999px;
+    font-family:'JetBrains Mono';
+  }
+  .pp-stock{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;margin:16px 0;}
+  .pp-stock.in{color:var(--mint);}
+  .pp-stock.low{color:var(--cheddar-deep);}
+  .pp-desc{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:20px;}
+
+  .qty-selector{
+    display:flex;align-items:center;border:2px solid var(--ink);border-radius:999px;overflow:hidden;width:fit-content;
+  }
+  .qty-selector button{width:42px;height:42px;background:var(--paper);font-size:18px;font-weight:700;}
+  .qty-selector button:hover{background:var(--cheddar);}
+  .qty-selector .qty-val{width:48px;text-align:center;font-family:'JetBrains Mono';font-weight:700;font-size:16px;}
+  .pp-actions{display:flex;gap:12px;margin:24px 0;flex-wrap:wrap;}
+  .pp-actions .btn{flex:1;min-width:160px;}
+
+  .pp-tabs-content{
+    background:var(--paper);border:2px solid var(--ink);border-radius:var(--radius);padding:28px;margin-top:16px;
+    font-size:14px;line-height:1.7;color:var(--ink-soft);
+  }
+  .spec-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px;}
+  .spec-row:last-child{border-bottom:none;}
+  .spec-row span:first-child{font-weight:700;color:var(--muted);}
+  .review-item{padding:18px 0;border-bottom:1px solid var(--line);}
+  .review-item:last-child{border-bottom:none;}
+  .review-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+
+  /* ---------- CART PAGE ---------- */
+  .cart-layout{display:grid;grid-template-columns:1fr 360px;gap:32px;align-items:flex-start;}
+  @media (max-width:880px){.cart-layout{grid-template-columns:1fr;}}
+  .cart-item{
+    display:grid;grid-template-columns:80px 1fr auto auto auto;gap:16px;align-items:center;
+    background:var(--paper);border:2px solid var(--ink);border-radius:var(--radius);padding:16px;margin-bottom:14px;
+  }
+  @media (max-width:640px){.cart-item{grid-template-columns:60px 1fr;grid-template-rows:auto auto;}
+    .cart-item .ci-qty,.cart-item .ci-price,.cart-item .ci-remove{grid-column:2;justify-self:start;}
+  }
+  .ci-thumb{width:80px;height:80px;border-radius:10px;background:var(--paper-warm);border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:30px;}
+  .ci-name{font-weight:700;font-size:15px;}
+  .ci-cat{font-size:12px;color:var(--muted);}
+  .ci-price{font-family:'JetBrains Mono';font-weight:700;}
+  .ci-remove{
+    width:36px;height:36px;border-radius:8px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;
+    color:var(--flash);transition:.15s;
+  }
+  .ci-remove:hover{background:var(--flash);color:#fff;border-color:var(--flash);}
+
+  .order-summary{
+    background:var(--paper);border:2px solid var(--ink);border-radius:var(--radius);padding:24px;position:sticky;top:96px;
+  }
+  .order-summary h3{margin-bottom:18px;}
+  .summary-row{display:flex;justify-content:space-between;font-size:14px;padding:8px 0;color:var(--ink-soft);}
+  .summary-row.total{font-weight:800;font-size:18px;color:var(--ink);border-top:2px solid var(--ink);margin-top:8px;padding-top:14px;font-family:'JetBrains Mono';}
+  .coupon-row{display:flex;gap:8px;margin:18px 0;}
+  .coupon-row input{flex:1;border:2px solid var(--ink);border-radius:999px;padding:10px 16px;font-family:inherit;font-size:13px;outline:none;}
+
+  /* ---------- CHECKOUT ---------- */
+  .checkout-layout{display:grid;grid-template-columns:1.4fr 1fr;gap:32px;align-items:flex-start;}
+  @media (max-width:880px){.checkout-layout{grid-template-columns:1fr;}}
+  .form-card{background:var(--paper);border:2px solid var(--ink);border-radius:var(--radius);padding:28px;margin-bottom:24px;}
+  .form-card h3{margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+  .form-card h3 .step-num{
+    width:28px;height:28px;border-radius:50%;background:var(--cheddar);border:2px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-family:'JetBrains Mono';
+  }
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:560px){.form-grid{grid-template-columns:1fr;}}
+  .form-field{display:flex;flex-direction:column;gap:6px;}
+  .form-field.full{grid-column:1/-1;}
+  .form-field label{font-size:13px;font-weight:700;}
+  .form-field input,.form-field textarea{
+    border:2px solid var(--ink);border-radius:10px;padding:12px 14px;font-family:inherit;font-size:14px;outline:none;
+    background:var(--paper);
+  }
+  .form-field input:focus,.form-field textarea:focus{border-color:var(--violet);}
+  .payment-options{display:flex;flex-direction:column;gap:12px;}
+  .pay-option{
+    display:flex;align-items:center;gap:14px;border:2px solid var(--ink);border-radius:12px;padding:14px 16px;
+    cursor:pointer;transition:.15s;
+  }
+  .pay-option:hover{background:var(--paper-warm);}
+  .pay-option.selected{background:var(--cheddar);}
+  .pay-option input{width:18px;height:18px;accent-color:var(--ink);}
+  .pay-option .pay-ic{
+    width:40px;height:40px;border-radius:10px;background:var(--paper);border:2px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'Space Grotesk';font-size:13px;flex-shrink:0;
+  }
+  .pay-name{font-weight:700;font-size:14px;}
+  .pay-desc{font-size:12px;color:var(--muted);}
+
+  /* ---------- DASHBOARD (USER + ADMIN) ---------- */
+  .dash-layout{display:grid;grid-template-columns:260px 1fr;gap:32px;align-items:flex-start;}
+  @media (max-width:880px){.dash-layout{grid-template-columns:1fr;}}
+  .dash-side{
+    background:var(--ink);color:#fff;border-radius:var(--radius);padding:22px;position:sticky;top:96px;
+  }
+  .dash-side .dash-user{display:flex;gap:12px;align-items:center;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--line-dark);}
+  .dash-avatar{
+    width:46px;height:46px;border-radius:50%;background:var(--cheddar);color:var(--ink);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'Space Grotesk';
+  }
+  .dash-nav{display:flex;flex-direction:column;gap:4px;}
+  .dash-nav button{
+    display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;background:none;color:#C7CAD3;
+    font-weight:600;font-size:14px;text-align:left;width:100%;transition:.15s;
+  }
+  .dash-nav button:hover{background:var(--ink-soft);color:#fff;}
+  .dash-nav button.active{background:var(--cheddar);color:var(--ink);}
+
+  .dash-card{background:var(--paper);border:2px solid var(--ink);border-radius:var(--radius);padding:24px;margin-bottom:20px;}
+  .dash-card h3{margin-bottom:16px;}
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:24px;}
+  @media (max-width:880px){.stat-grid{grid-template-columns:repeat(2,1fr);}}
+  .stat-card{background:var(--paper);border:2px solid var(--ink);border-radius:var(--radius);padding:20px;box-shadow:4px 4px 0 var(--ink);}
+  .stat-card .stat-ic{
+    width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;border:2px solid var(--ink);
+  }
+  .stat-card .stat-val{font-family:'JetBrains Mono';font-size:26px;font-weight:700;}
+  .stat-card .stat-lab{font-size:13px;color:var(--muted);margin-top:4px;}
+  .stat-card .stat-delta{font-size:12px;font-weight:700;margin-top:8px;display:inline-flex;align-items:center;gap:4px;}
+  .stat-delta.up{color:var(--mint);}
+  .stat-delta.down{color:var(--flash);}
+
+  table.data-table{width:100%;border-collapse:collapse;font-size:14px;}
+  table.data-table th{
+    text-align:left;padding:12px;border-bottom:2px solid var(--ink);font-size:12px;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--muted);font-family:'JetBrains Mono';
+  }
+  table.data-table td{padding:14px 12px;border-bottom:1px solid var(--line);}
+  table.data-table tr:last-child td{border-bottom:none;}
+  table.data-table tr:hover td{background:var(--paper-warm);}
+  .row-flex{overflow-x:auto;}
+
+  .status-pill{
+    font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px;display:inline-block;
+  }
+  .status-pill.delivered{background:#DCF7E8;color:#1A8F56;}
+  .status-pill.pending{background:#FFF3D6;color:#B8780A;}
+  .status-pill.processing{background:#E6E2FF;color:var(--violet);}
+  .status-pill.cancelled{background:#FFE0E6;color:var(--flash);}
+
+  .admin-table-actions{display:flex;gap:6px;}
+  .icon-sm{
+    width:32px;height:32px;border-radius:8px;border:2px solid var(--ink);background:var(--paper);
+    display:flex;align-items:center;justify-content:center;transition:.15s;
+  }
+  .icon-sm:hover{background:var(--cheddar);}
+
+  .empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
+  .empty-state .ic{font-size:48px;margin-bottom:14px;}
+  .empty-state h3{color:var(--ink);margin-bottom:8px;}
+
+  /* ---------- TOAST ---------- */
+  .toast{
+    position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;padding:16px 22px;border-radius:12px;
+    font-weight:700;font-size:14px;display:flex;align-items:center;gap:10px;z-index:999;
+    box-shadow:4px 4px 0 var(--cheddar);animation:toastIn .25s ease;
+  }
+  @keyframes toastIn{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+  /* ---------- MOBILE NAV DRAWER ---------- */
+  .mobile-drawer{
+    position:fixed;inset:0;background:rgba(15,17,21,.5);z-index:200;display:flex;justify-content:flex-end;
+  }
+  .mobile-drawer-panel{
+    width:280px;background:var(--paper);height:100%;padding:24px;display:flex;flex-direction:column;gap:6px;
+    animation:slideIn .2s ease;
+  }
+  @keyframes slideIn{from{transform:translateX(100%);}to{transform:translateX(0);}}
+  .mobile-drawer-panel a, .mobile-drawer-panel button.nav-link{
+    padding:14px 10px;border-radius:10px;font-weight:700;font-size:15px;text-align:left;background:none;
+  }
+  .mobile-drawer-panel a:hover, .mobile-drawer-panel button.nav-link:hover{background:var(--paper-warm);}
+  .mobile-search{display:flex;align-items:center;border:2px solid var(--ink);border-radius:999px;padding:10px 16px;gap:8px;margin-bottom:14px;}
+  .mobile-search input{flex:1;border:none;outline:none;background:none;font-family:inherit;font-size:14px;}
+
+  /* small utilities */
+  .flex-center{display:flex;align-items:center;}
+  .gap-8{gap:8px;}
+  .text-muted{color:var(--muted);}
+  .mt-8{margin-top:8px;}
+  .mb-0{margin-bottom:0;}
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important;transition-duration:.001ms !important;}
+  }
+</style>
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to content</a>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useMemo, useEffect, useRef } = React;
+
+/* ============== ICON HELPER ============== */
+function Icon({ name, size = 18, ...rest }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (ref.current && window.lucide) {
+      ref.current.innerHTML = '';
+      const el = window.lucide.createElement(window.lucide.icons[toPascal(name)]);
+      if (el) ref.current.appendChild(el);
+      const svg = ref.current.querySelector('svg');
+      if (svg){ svg.setAttribute('width', size); svg.setAttribute('height', size); svg.setAttribute('aria-hidden','true'); }
+    }
+  }, [name, size]);
+  function toPascal(s){
+    return s.split('-').map(w=>w[0].toUpperCase()+w.slice(1)).join('').replace(/(\d)([a-z])/g, (m,a,b)=>a+b.toUpperCase());
+  }
+  return <span ref={ref} style={{display:'inline-flex',lineHeight:0}} {...rest}></span>;
+}
+
+/* ============== MOCK DATA ============== */
+const CATEGORIES = [
+  { id:'electronics', name:'Electronics', icon:'🖥' },
+  { id:'fashion', name:'Fashion', icon:'👕' },
+  { id:'watches', name:'Watches', icon:'⌚' },
+  { id:'gaming', name:'Gaming', icon:'🎮' },
+  { id:'home', name:'Home & Living', icon:'🏠' },
+  { id:'accessories', name:'Accessories', icon:'🎁' },
+];
+
+const PRODUCTS = [
+  { id:1, name:'AeroBeat Wireless Earbuds', cat:'Electronics', icon:'🎧', price:4499, old:6999, rating:4.6, reviews:312, badge:'hot', stock:'in', stockCount:42, brand:'AeroSound' },
+  { id:2, name:'Quantum X Smart Watch', cat:'Watches', icon:'⌚', price:8999, old:12999, rating:4.8, reviews:540, badge:'new', stock:'in', stockCount:15, brand:'Quantum' },
+  { id:3, name:'NebulaPad Gaming Mouse', cat:'Gaming', icon:'🖱', price:2499, old:3299, rating:4.4, reviews:198, badge:'hot', stock:'low', stockCount:4, brand:'NebulaTech' },
+  { id:4, name:'Heritage Denim Jacket', cat:'Fashion', icon:'🧥', price:5499, old:7999, rating:4.2, reviews:87, badge:'new', stock:'in', stockCount:30, brand:'Urban Forge' },
+  { id:5, name:'LumaGlow Desk Lamp', cat:'Home & Living', icon:'💡', price:1899, old:2599, rating:4.5, reviews:121, badge:null, stock:'in', stockCount:60, brand:'Luma' },
+  { id:6, name:'Carbon-Fiber Wallet', cat:'Accessories', icon:'👛', price:1299, old:1799, rating:4.7, reviews:265, badge:'hot', stock:'in', stockCount:80, brand:'Forge & Co' },
+  { id:7, name:'Pulse 4K Action Camera', cat:'Electronics', icon:'📷', price:14999, old:19999, rating:4.3, reviews:74, badge:'new', stock:'in', stockCount:8, brand:'Pulse' },
+  { id:8, name:'EverFlex Running Shoes', cat:'Fashion', icon:'👟', price:3999, old:5499, rating:4.6, reviews:410, badge:null, stock:'in', stockCount:50, brand:'EverFlex' },
+  { id:9, name:'Orbit RGB Mechanical Keyboard', cat:'Gaming', icon:'⌨️', price:6499, old:8999, rating:4.9, reviews:601, badge:'hot', stock:'in', stockCount:22, brand:'Orbit' },
+  { id:10, name:'Cloud9 Memory Pillow', cat:'Home & Living', icon:'🛏', price:2299, old:2999, rating:4.1, reviews:56, badge:null, stock:'in', stockCount:35, brand:'Cloud9' },
+  { id:11, name:'Aviator Polarized Sunglasses', cat:'Accessories', icon:'🕶', price:1799, old:2499, rating:4.4, reviews:143, badge:'new', stock:'in', stockCount:48, brand:'Skyline' },
+  { id:12, name:'Titan Pro Power Bank 20K', cat:'Electronics', icon:'🔋', price:3299, old:4499, rating:4.5, reviews:289, badge:null, stock:'in', stockCount:25, brand:'Titan' },
+];
+
+const TESTIMONIALS = [
+  { name:'Ayesha Khan', role:'Lahore', initials:'AK', stars:5, quote:'Order pohunch gaya within 2 days, packaging top class thi. Quality bilkul jaisa dikhaya gaya tha!' },
+  { name:'Hamza Tariq', role:'Karachi', initials:'HT', stars:5, quote:'Easypaisa se payment ki, support team ne fori response diya. Definitely ordering again.' },
+  { name:'Sara Ahmed', role:'Islamabad', initials:'SA', stars:4, quote:'Flash deal mein smart watch li, price ke hisaab se kaafi premium feel hoti hai.' },
+];
+
+const ORDERS = [
+  { id:'CZ-10231', date:'2026-06-08', items:3, total:14999, status:'delivered' },
+  { id:'CZ-10245', date:'2026-06-10', items:1, total:8999, status:'processing' },
+  { id:'CZ-10250', date:'2026-06-11', items:2, total:5298, status:'pending' },
+  { id:'CZ-10199', date:'2026-05-29', items:1, total:1799, status:'cancelled' },
+];
+
+const ADMIN_ORDERS = [
+  { id:'CZ-10231', customer:'Ayesha Khan', date:'2026-06-08', total:14999, status:'delivered' },
+  { id:'CZ-10245', customer:'Hamza Tariq', date:'2026-06-10', total:8999, status:'processing' },
+  { id:'CZ-10250', customer:'Sara Ahmed', date:'2026-06-11', total:5298, status:'pending' },
+  { id:'CZ-10199', customer:'Bilal Raza', date:'2026-05-29', total:1799, status:'cancelled' },
+  { id:'CZ-10300', customer:'Mehwish Ali', date:'2026-06-12', total:22999, status:'processing' },
+];
+
+const PKR = n => 'Rs ' + n.toLocaleString('en-PK');
+
+/* ============== SHARED UI ============== */
+function Stars({ rating }) {
+  const full = Math.round(rating);
+  return <span className="stars">{'★'.repeat(full)}{'☆'.repeat(5-full)}</span>;
+}
+
+function Toast({ message, onClose }) {
+  useEffect(() => {
+    const t = setTimeout(onClose, 2400);
+    return () => clearTimeout(t);
+  }, [message]);
+  return (
+    <div className="toast" role="status">
+      <Icon name="check-circle" size={18} />
+      {message}
+    </div>
+  );
+}
+
+/* ============== HEADER ============== */
+function Header({ route, navigate, cartCount, wishCount }) {
+  const [query, setQuery] = useState('');
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const links = [
+    { id:'home', label:'Home' },
+    { id:'shop', label:'Shop' },
+    { id:'about', label:'About Us' },
+    { id:'contact', label:'Contact' },
+  ];
+
+  function go(id){ navigate(id); setDrawerOpen(false); }
+
+  function submitSearch(e){
+    e.preventDefault();
+    navigate('shop');
+  }
+
+  return (
+    <>
+      <div className="topbar">
+        <div className="wrap">
+          <div className="left">
+            <span>Free delivery on orders over Rs 3,000</span>
+            <span className="text-muted">|</span>
+            <span>Track your order anytime</span>
+          </div>
+          <div className="right">
+            <a href="#"><Icon name="facebook" size={14}/></a>
+            <a href="#"><Icon name="instagram" size={14}/></a>
+            <a href="#"><Icon name="youtube" size={14}/></a>
+          </div>
+        </div>
+      </div>
+
+      <header className="site">
+        <div className="wrap">
+          <a href="#" className="logo" onClick={(e)=>{e.preventDefault();go('home');}} aria-label="Chezzy Shop home">
+            <span className="logo-mark">C</span>
+            <span className="logo-text">Chezzy<span>Shop</span></span>
+          </a>
+
+          <nav className="main-nav" aria-label="Main navigation">
+            {links.map(l => (
+              <a key={l.id} href="#" className={route===l.id ? 'active':''} onClick={(e)=>{e.preventDefault();go(l.id);}}>{l.label}</a>
+            ))}
+          </nav>
+
+          <form className="search-bar" onSubmit={submitSearch} role="search">
+            <Icon name="search" size={16} />
+            <input type="text" placeholder="Search products, brands..." value={query} onChange={e=>setQuery(e.target.value)} aria-label="Search products" />
+          </form>
+
+          <div className="header-icons">
+            <button className="icon-btn nav-toggle" aria-label="Open menu" onClick={()=>setDrawerOpen(true)}>
+              <Icon name="menu" size={20} />
+            </button>
+            <button className="icon-btn" aria-label="Wishlist" onClick={()=>go('dashboard')}>
+              <Icon name="heart" size={18} />
+              {wishCount>0 && <span className="badge">{wishCount}</span>}
+            </button>
+            <button className="icon-btn" aria-label="Cart" onClick={()=>go('cart')}>
+              <Icon name="shopping-cart" size={18} />
+              {cartCount>0 && <span className="badge">{cartCount}</span>}
+            </button>
+            <button className="icon-btn" aria-label="Account" onClick={()=>go('dashboard')}>
+              <Icon name="user" size={18} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {drawerOpen && (
+        <div className="mobile-drawer" onClick={()=>setDrawerOpen(false)}>
+          <div className="mobile-drawer-panel" onClick={e=>e.stopPropagation()}>
+            <div className="flex-center" style={{justifyContent:'space-between',marginBottom:'8px'}}>
+              <span className="logo-text" style={{fontSize:'18px'}}>Chezzy<span>Shop</span></span>
+              <button className="icon-btn" aria-label="Close menu" onClick={()=>setDrawerOpen(false)}><Icon name="x" size={18}/></button>
+            </div>
+            <form className="mobile-search" onSubmit={submitSearch}>
+              <Icon name="search" size={16} />
+              <input type="text" placeholder="Search..." aria-label="Search products" />
+            </form>
+            {links.map(l => (
+              <a key={l.id} href="#" onClick={(e)=>{e.preventDefault();go(l.id);}}>{l.label}</a>
+            ))}
+            <button className="nav-link" onClick={()=>go('cart')}>Cart {cartCount>0 && `(${cartCount})`}</button>
+            <button className="nav-link" onClick={()=>go('dashboard')}>My Account</button>
+            <button className="nav-link" onClick={()=>go('admin')}>Admin Dashboard</button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ============== PRODUCT CARD ============== */
+function ProductCard({ p, onAddCart, onToggleWish, isWished, onView }) {
+  return (
+    <div className="pcard">
+      <div className="pcard-img" onClick={()=>onView(p)} style={{cursor:'pointer'}}>
+        {p.badge && <span className={`pcard-badge ${p.badge}`}>{p.badge==='new'?'NEW':p.badge==='hot'?'HOT':p.badge.toUpperCase()}</span>}
+        <button className="pcard-wish" aria-label={isWished?'Remove from wishlist':'Add to wishlist'} onClick={(e)=>{e.stopPropagation();onToggleWish(p);}}>
+          <Icon name="heart" size={16} style={{fill: isWished ? 'var(--flash)' : 'none', color: isWished ? 'var(--flash)' : 'var(--ink)'}} />
+        </button>
+        <span className="ic">{p.icon}</span>
+      </div>
+      <div className="pcard-body">
+        <span className="pcard-cat">{p.cat}</span>
+        <h3 className="pcard-name">{p.name}</h3>
+        <div className="pcard-rating"><Stars rating={p.rating}/> <span>{p.rating} ({p.reviews})</span></div>
+        <div className="pcard-prices">
+          <span className="pcard-price mono">{PKR(p.price)}</span>
+          {p.old && <span className="pcard-old mono">{PKR(p.old)}</span>}
+        </div>
+      </div>
+      <div className="pcard-actions">
+        <button className="btn btn-outline" onClick={()=>onView(p)}>View</button>
+        <button className="btn btn-primary" onClick={()=>onAddCart(p)}><Icon name="shopping-cart" size={15}/> Add</button>
+      </div>
+    </div>
+  );
+}
+
+/* ============== HOME PAGE ============== */
+function HomePage({ navigate, onAddCart, onToggleWish, wishlist, onView, setCatFilter }) {
+  const [countdown, setCountdown] = useState({h:6, m:42, s:18});
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setCountdown(c => {
+        let { h, m, s } = c;
+        s--; if(s<0){s=59;m--;} if(m<0){m=59;h--;} if(h<0){h=23;}
+        return { h, m, s };
+      });
+    }, 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const pad = n => String(n).padStart(2,'0');
+  const trending = PRODUCTS.slice(0,4);
+  const newArrivals = PRODUCTS.filter(p=>p.badge==='new').slice(0,4);
+  const bestSellers = PRODUCTS.filter(p=>p.rating>=4.5).slice(0,4);
+  const flashDeals = PRODUCTS.filter(p=>p.old).slice(4,8);
+
+  function goCategory(catName){
+    setCatFilter(catName);
+    navigate('shop');
+  }
+
+  return (
+    <>
+      {/* HERO */}
+      <section className="hero">
+        <div className="wrap">
+          <div>
+            <span className="hero-eyebrow"><Icon name="zap" size={13}/> Pakistan's fastest growing store</span>
+            <h1>Shop <span className="hl">Smarter</span>,<br/>Live <span className="hl2">Better</span></h1>
+            <p className="lead">Premium products at unbeatable prices with fast delivery — straight to your doorstep, anywhere in Pakistan.</p>
+            <div className="hero-ctas">
+              <button className="btn btn-primary" onClick={()=>navigate('shop')}>Shop Now <Icon name="arrow-right" size={16}/></button>
+              <button className="btn btn-outline" style={{color:'#fff',borderColor:'#fff'}} onClick={()=>document.getElementById('categories').scrollIntoView({behavior:'smooth'})}>Explore Categories</button>
+            </div>
+          </div>
+          <div className="hero-visual">
+            <div className="hero-blob"></div>
+            <div className="price-tag tag-1">
+              <div className="ptag-name">Quantum X Watch</div>
+              <div className="ptag-price">{PKR(8999)}</div>
+            </div>
+            <div className="price-tag tag-2">
+              <div className="ptag-name">Orbit RGB Keyboard</div>
+              <div className="ptag-price">{PKR(6499)}</div>
+            </div>
+            <div className="price-tag tag-3">
+              <div className="ptag-name">In Stock — Ships Today</div>
+              <div className="ptag-price" style={{fontSize:'16px'}}>✓ 24h Dispatch</div>
+            </div>
+          </div>
+        </div>
+        <div style={{height:'56px'}}></div>
+      </section>
+
+      {/* CATEGORIES */}
+      <section id="categories">
+        <div className="wrap">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Browse</span>
+              <h2>Shop by Category</h2>
+            </div>
+          </div>
+          <div className="cat-grid">
+            {CATEGORIES.map(c => (
+              <div key={c.id} className="cat-card" onClick={()=>goCategory(c.name)} role="button" tabIndex={0}
+                onKeyDown={(e)=>{if(e.key==='Enter')goCategory(c.name);}}>
+                <span className="ic">{c.icon}</span>
+                <div className="name">{c.name}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* TRENDING */}
+      <section style={{paddingTop:0}}>
+        <div className="wrap">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Trending Now</span>
+              <h2>Trending Products</h2>
+            </div>
+            <button className="btn btn-ghost" onClick={()=>navigate('shop')}>View all <Icon name="arrow-right" size={15}/></button>
+          </div>
+          <div className="product-grid">
+            {trending.map(p => <ProductCard key={p.id} p={p} onAddCart={onAddCart} onToggleWish={onToggleWish} isWished={wishlist.some(w=>w.id===p.id)} onView={onView}/>)}
+          </div>
+        </div>
+      </section>
+
+      {/* NEW ARRIVALS */}
+      <section style={{paddingTop:0}}>
+        <div className="wrap">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Just Landed</span>
+              <h2>New Arrivals</h2>
+            </div>
+            <button className="btn btn-ghost" onClick={()=>navigate('shop')}>View all <Icon name="arrow-right" size={15}/></button>
+          </div>
+          <div className="product-grid">
+            {newArrivals.map(p => <ProductCard key={p.id} p={p} onAddCart={onAddCart} onToggleWish={onToggleWish} isWished={wishlist.some(w=>w.id===p.id)} onView={onView}/>)}
+          </div>
+        </div>
+      </section>
+
+      {/* FLASH DEALS */}
+      <section className="flash-band">
+        <div className="wrap">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow" style={{color:'var(--cheddar)'}}>Hurry Up</span>
+              <h2>⚡ Flash Deals</h2>
+              <p className="sub">Prices this low won't last — grab them before the clock runs out.</p>
+            </div>
+            <div className="countdown" aria-label="Deal countdown timer">
+              <div className="cell"><div className="num mono">{pad(countdown.h)}</div><div className="lab">Hrs</div></div>
+              <div className="cell"><div className="num mono">{pad(countdown.m)}</div><div className="lab">Min</div></div>
+              <div className="cell"><div className="num mono">{pad(countdown.s)}</div><div className="lab">Sec</div></div>
+            </div>
+          </div>
+          <div className="product-grid">
+            {flashDeals.map(p => <ProductCard key={p.id} p={p} onAddCart={onAddCart} onToggleWish={onToggleWish} isWished={wishlist.some(w=>w.id===p.id)} onView={onView}/>)}
+          </div>
+        </div>
+      </section>
+
+      {/* BEST SELLERS */}
+      <section>
+        <div className="wrap">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Customer Favourites</span>
+              <h2>Best Sellers</h2>
+            </div>
+            <button className="btn btn-ghost" onClick={()=>navigate('shop')}>View all <Icon name="arrow-right" size={15}/></button>
+          </div>
+          <div className="product-grid">
+            {bestSellers.map(p => <ProductCard key={p.id} p={p} onAddCart={onAddCart} onToggleWish={onToggleWish} isWished={wishlist.some(w=>w.id===p.id)} onView={onView}/>)}
+          </div>
+        </div>
+      </section>
+
+      {/* WHY CHOOSE US */}
+      <section style={{paddingTop:0}}>
+        <div className="wrap">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">The Chezzy Promise</span>
+              <h2>Why Choose Us</h2>
+            </div>
+          </div>
+          <div className="why-grid">
+            {[
+              {ic:'truck', title:'Fast Delivery', text:'Same-day dispatch and reliable nationwide delivery within 24-72 hours.'},
+              {ic:'shield-check', title:'Secure Payments', text:'COD, bank transfer, JazzCash & Easypaisa — all encrypted and protected.'},
+              {ic:'badge-check', title:'Quality Products', text:'Every item checked against strict quality standards before it ships.'},
+              {ic:'headphones', title:'24/7 Support', text:'Real humans on WhatsApp and email, ready whenever you need help.'},
+            ].map((w,i)=>(
+              <div className="why-card" key={i}>
+                <div className="ic-wrap"><Icon name={w.ic} size={24}/></div>
+                <h3>{w.title}</h3>
+                <p>{w.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section style={{paddingTop:0}}>
+        <div className="wrap">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Real Talk</span>
+              <h2>Customer Reviews</h2>
+            </div>
+          </div>
+          <div className="testi-track">
+            {TESTIMONIALS.map((t,i)=>(
+              <div className="testi-card" key={i}>
+                <div className="testi-stars">{'★'.repeat(t.stars)}{'☆'.repeat(5-t.stars)}</div>
+                <p className="testi-quote">"{t.quote}"</p>
+                <div className="testi-person">
+                  <div className="testi-avatar">{t.initials}</div>
+                  <div>
+                    <div className="testi-name">{t.name}</div>
+                    <div className="testi-role">{t.role}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* NEWSLETTER */}
+      <section style={{paddingTop:0}}>
+        <div className="wrap">
+          <div className="newsletter">
+            <div>
+              <h2>Get exclusive deals and offers straight to your inbox.</h2>
+              <p>No spam — just real discounts, restock alerts and early access to flash sales.</p>
+            </div>
+            <form className="newsletter-form" onSubmit={e=>e.preventDefault()}>
+              <input type="email" placeholder="you@example.com" required aria-label="Email address" />
+              <button className="btn btn-dark" type="submit">Subscribe</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+/* ============== SHOP PAGE ============== */
+function ShopPage({ onAddCart, onToggleWish, wishlist, onView, catFilter, setCatFilter }) {
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState('featured');
+  const [price, setPrice] = useState(20000);
+  const [selectedCats, setSelectedCats] = useState(catFilter ? [catFilter] : []);
+  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [minRating, setMinRating] = useState(0);
+  const [page, setPage] = useState(1);
+  const PER_PAGE = 8;
+
+  useEffect(() => {
+    if (catFilter) { setSelectedCats([catFilter]); setCatFilter(null); }
+  }, []);
+
+  const brands = useMemo(()=>[...new Set(PRODUCTS.map(p=>p.brand))], []);
+
+  function toggleCat(name){
+    setSelectedCats(s => s.includes(name) ? s.filter(c=>c!==name) : [...s, name]);
+    setPage(1);
+  }
+  function toggleBrand(name){
+    setSelectedBrands(s => s.includes(name) ? s.filter(c=>c!==name) : [...s, name]);
+    setPage(1);
+  }
+
+  const filtered = useMemo(() => {
+    let list = PRODUCTS.filter(p => {
+      if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
+      if (selectedCats.length && !selectedCats.includes(p.cat)) return false;
+      if (selectedBrands.length && !selectedBrands.includes(p.brand)) return false;
+      if (p.price > price) return false;
+      if (p.rating < minRating) return false;
+      return true;
+    });
+    if (sort==='price-low') list = [...list].sort((a,b)=>a.price-b.price);
+    if (sort==='price-high') list = [...list].sort((a,b)=>b.price-a.price);
+    if (sort==='rating') list = [...list].sort((a,b)=>b.rating-a.rating);
+    return list;
+  }, [search, selectedCats, selectedBrands, price, minRating, sort]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const pageItems = filtered.slice((page-1)*PER_PAGE, page*PER_PAGE);
+
+  return (
+    <>
+      <div className="page-header">
+        <div className="wrap">
+          <h1>Shop All Products</h1>
+          <div className="crumbs"><a href="#">Home</a> / Shop</div>
+        </div>
+      </div>
+      <section>
+        <div className="wrap">
+          <div className="shop-layout">
+            {/* SIDEBAR */}
+            <aside className="filter-panel" aria-label="Filters">
+              <div className="filter-block">
+                <h4>Categories</h4>
+                {CATEGORIES.map(c => (
+                  <label className="filter-row" key={c.id}>
+                    <input type="checkbox" checked={selectedCats.includes(c.name)} onChange={()=>toggleCat(c.name)} />
+                    {c.icon} {c.name}
+                  </label>
+                ))}
+              </div>
+              <div className="filter-block">
+                <h4>Price Range</h4>
+                <div className="range-row">
+                  <input type="range" min="500" max="20000" step="100" value={price} onChange={e=>{setPrice(Number(e.target.value));setPage(1);}} aria-label="Maximum price"/>
+                </div>
+                <div className="mt-8 text-muted" style={{fontSize:'13px'}}>Up to <span className="range-val mono">{PKR(price)}</span></div>
+              </div>
+              <div className="filter-block">
+                <h4>Brand</h4>
+                {brands.map(b => (
+                  <label className="filter-row" key={b}>
+                    <input type="checkbox" checked={selectedBrands.includes(b)} onChange={()=>toggleBrand(b)} />
+                    {b}
+                  </label>
+                ))}
+              </div>
+              <div className="filter-block">
+                <h4>Rating</h4>
+                {[4,3,2].map(r => (
+                  <label className="filter-row" key={r}>
+                    <input type="radio" name="rating" checked={minRating===r} onChange={()=>{setMinRating(r);setPage(1);}} />
+                    <span className="star-row">{'★'.repeat(r)}{'☆'.repeat(5-r)}</span> & up
+                  </label>
+                ))}
+                <label className="filter-row">
+                  <input type="radio" name="rating" checked={minRating===0} onChange={()=>{setMinRating(0);setPage(1);}} />
+                  Any rating
+                </label>
+              </div>
+            </aside>
+
+            {/* MAIN */}
+            <div>
+              <div className="shop-toolbar">
+                <form className="search-bar" style={{maxWidth:'320px'}} onSubmit={e=>e.preventDefault()} role="search">
+                  <Icon name="search" size={16} />
+                  <input type="text" placeholder="Search products..." value={search} onChange={e=>{setSearch(e.target.value);setPage(1);}} aria-label="Search products"/>
+                </form>
+                <div className="flex-center gap-8" style={{flexWrap:'wrap'}}>
+                  <span className="count">{filtered.length} results</span>
+                  <div className="select-box">
+                    <Icon name="arrow-up-down" size={14}/>
+                    <select value={sort} onChange={e=>setSort(e.target.value)} aria-label="Sort by">
+                      <option value="featured">Featured</option>
+                      <option value="price-low">Price: Low to High</option>
+                      <option value="price-high">Price: High to Low</option>
+                      <option value="rating">Top Rated</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {pageItems.length === 0 ? (
+                <div className="empty-state">
+                  <div className="ic">🔍</div>
+                  <h3>No products found</h3>
+                  <p>Try adjusting your filters or search terms.</p>
+                </div>
+              ) : (
+                <div className="product-grid">
+                  {pageItems.map(p => <ProductCard key={p.id} p={p} onAddCart={onAddCart} onToggleWish={onToggleWish} isWished={wishlist.some(w=>w.id===p.id)} onView={onView}/>)}
+                </div>
+              )}
+
+              {totalPages > 1 && (
+                <div className="pagination" aria-label="Pagination">
+                  <button className="page-btn" disabled={page===1} onClick={()=>setPage(p=>p-1)} aria-label="Previous page"><Icon name="chevron-left" size={16}/></button>
+                  {Array.from({length: totalPages}).map((_,i)=>(
+                    <button key={i} className={`page-btn ${page===i+1?'active':''}`} onClick={()=>setPage(i+1)}>{i+1}</button>
+                  ))}
+                  <button className="page-btn" disabled={page===totalPages} onClick={()=>setPage(p=>p+1)} aria-label="Next page"><Icon name="chevron-right" size={16}/></button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+/* ============== PRODUCT DETAIL PAGE ============== */
+function ProductPage({ product, navigate, onAddCart, onToggleWish, isWished }) {
+  const [qty, setQty] = useState(1);
+  const [activeThumb, setActiveThumb] = useState(0);
+  const [tab, setTab] = useState('description');
+  const [zoom, setZoom] = useState(false);
+
+  if (!product) return (
+    <section><div className="wrap"><div className="empty-state"><div className="ic">📦</div><h3>Product not found</h3><button className="btn btn-primary mt-8" onClick={()=>navigate('shop')}>Back to shop</button></div></div></section>
+  );
+
+  const thumbs = [product.icon, '📦', '🏷️', '📐'];
+
+  return (
+    <>
+      <div className="page-header">
+        <div className="wrap">
+          <h1>{product.name}</h1>
+          <div className="crumbs"><a href="#" onClick={(e)=>{e.preventDefault();navigate('home');}}>Home</a> / <a href="#" onClick={(e)=>{e.preventDefault();navigate('shop');}}>Shop</a> / {product.cat} / {product.name}</div>
+        </div>
+      </div>
+      <section>
+        <div className="wrap">
+          <div className="product-layout">
+            {/* GALLERY */}
+            <div>
+              <div className="gallery-main" onClick={()=>setZoom(z=>!z)}>
+                <span className="ic" style={{fontSize: zoom ? '160px':'120px'}}>{thumbs[activeThumb]}</span>
+                <span className="zoom-pill"><Icon name="zoom-in" size={14}/> {zoom ? 'Zoomed' : 'Click to zoom'}</span>
+              </div>
+              <div className="gallery-thumbs">
+                {thumbs.map((t,i)=>(
+                  <button key={i} className={`gthumb ${activeThumb===i?'active':''}`} onClick={()=>{setActiveThumb(i);setZoom(false);}} aria-label={`View image ${i+1}`}>{t}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* INFO */}
+            <div>
+              <span className="pp-cat">{product.cat} • {product.brand}</span>
+              <h2 className="pp-title">{product.name}</h2>
+              <div className="pp-rating"><Stars rating={product.rating}/> <span>{product.rating} out of 5 ({product.reviews} reviews)</span></div>
+
+              <div className="pp-price-row">
+                <span className="pp-price mono">{PKR(product.price)}</span>
+                {product.old && <span className="pp-old mono">{PKR(product.old)}</span>}
+                {product.old && <span className="pp-discount">-{Math.round((1-product.price/product.old)*100)}%</span>}
+              </div>
+
+              <div className={`pp-stock ${product.stock==='in'?'in':'low'}`}>
+                <Icon name={product.stock==='in'?'check-circle':'alert-triangle'} size={16}/>
+                {product.stock==='in' ? `In Stock (${product.stockCount} available)` : `Only ${product.stockCount} left — order soon!`}
+              </div>
+
+              <p className="pp-desc">Premium-grade build with reliable performance for everyday use. Backed by Chezzy Shop's quality guarantee, fast nationwide delivery and hassle-free returns within 7 days.</p>
+
+              <div>
+                <label style={{fontWeight:700,fontSize:'13px',display:'block',marginBottom:'8px'}}>Quantity</label>
+                <div className="qty-selector">
+                  <button onClick={()=>setQty(q=>Math.max(1,q-1))} aria-label="Decrease quantity">−</button>
+                  <span className="qty-val">{qty}</span>
+                  <button onClick={()=>setQty(q=>Math.min(product.stockCount,q+1))} aria-label="Increase quantity">+</button>
+                </div>
+              </div>
+
+              <div className="pp-actions">
+                <button className="btn btn-dark" onClick={()=>onAddCart(product, qty)}><Icon name="shopping-cart" size={16}/> Add to Cart</button>
+                <button className="btn btn-flash" onClick={()=>{onAddCart(product, qty);navigate('checkout');}}><Icon name="zap" size={16}/> Buy Now</button>
+                <button className="btn btn-outline" onClick={()=>onToggleWish(product)}>
+                  <Icon name="heart" size={16} style={{fill: isWished ? 'var(--flash)' : 'none', color: isWished ? 'var(--flash)' : 'var(--ink)'}}/> {isWished ? 'Wishlisted' : 'Wishlist'}
+                </button>
+              </div>
+
+              <div className="tabs-row">
+                {['description','specifications','reviews'].map(t => (
+                  <button key={t} className={`tab-btn ${tab===t?'active':''}`} onClick={()=>setTab(t)}>{t[0].toUpperCase()+t.slice(1)}</button>
+                ))}
+              </div>
+              <div className="pp-tabs-content">
+                {tab==='description' && (
+                  <p>The {product.name} is engineered for people who expect more from their everyday gear. From the {product.cat.toLowerCase()} category, it combines durable materials, refined design and consistent performance — all at a price that doesn't break the bank. Each unit goes through Chezzy Shop's quality check before dispatch.</p>
+                )}
+                {tab==='specifications' && (
+                  <div>
+                    <div className="spec-row"><span>Brand</span><span>{product.brand}</span></div>
+                    <div className="spec-row"><span>Category</span><span>{product.cat}</span></div>
+                    <div className="spec-row"><span>Warranty</span><span>6 months</span></div>
+                    <div className="spec-row"><span>Return Policy</span><span>7-day easy return</span></div>
+                    <div className="spec-row"><span>Origin</span><span>Imported</span></div>
+                    <div className="spec-row"><span>SKU</span><span className="mono">CZ-{String(product.id).padStart(5,'0')}</span></div>
+                  </div>
+                )}
+                {tab==='reviews' && (
+                  <div>
+                    {TESTIMONIALS.map((t,i)=>(
+                      <div className="review-item" key={i}>
+                        <div className="review-head">
+                          <strong>{t.name}</strong>
+                          <span className="testi-stars">{'★'.repeat(t.stars)}{'☆'.repeat(5-t.stars)}</span>
+                        </div>
+                        <p className="text-muted" style={{fontSize:'14px'}}>{t.quote}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+/* ============== CART PAGE ============== */
+function CartPage({ cart, updateQty, removeItem, navigate }) {
+  const [coupon, setCoupon] = useState('');
+  const [applied, setApplied] = useState(null);
+
+  const subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const discount = applied ? Math.round(subtotal*applied.pct) : 0;
+  const shipping = subtotal > 3000 || subtotal===0 ? 0 : 200;
+  const total = subtotal - discount + shipping;
+
+  function applyCoupon(e){
+    e.preventDefault();
+    if (coupon.trim().toUpperCase()==='CHEZZY10') setApplied({code:'CHEZZY10', pct:0.10});
+    else setApplied(null);
+  }
+
+  return (
+    <>
+      <div className="page-header">
+        <div className="wrap">
+          <h1>Your Cart</h1>
+          <div className="crumbs"><a href="#" onClick={(e)=>{e.preventDefault();navigate('home');}}>Home</a> / Cart</div>
+        </div>
+      </div>
+      <section>
+        <div className="wrap">
+          {cart.length===0 ? (
+            <div className="empty-state">
+              <div className="ic">🛒</div>
+              <h3>Your cart is empty</h3>
+              <p>Looks like you haven't added anything yet.</p>
+              <button className="btn btn-primary mt-8" onClick={()=>navigate('shop')}>Start Shopping</button>
+            </div>
+          ) : (
+            <div className="cart-layout">
+              <div>
+                {cart.map(item => (
+                  <div className="cart-item" key={item.id}>
+                    <div className="ci-thumb">{item.icon}</div>
+                    <div>
+                      <div className="ci-name">{item.name}</div>
+                      <div className="ci-cat">{item.cat}</div>
+                    </div>
+                    <div className="ci-qty">
+                      <div className="qty-selector">
+                        <button onClick={()=>updateQty(item.id,-1)} aria-label="Decrease quantity">−</button>
+                        <span className="qty-val">{item.qty}</span>
+                        <button onClick={()=>updateQty(item.id,1)} aria-label="Increase quantity">+</button>
+                      </div>
+                    </div>
+                    <div className="ci-price mono">{PKR(item.price*item.qty)}</div>
+                    <button className="ci-remove" aria-label={`Remove ${item.name}`} onClick={()=>removeItem(item.id)}><Icon name="trash-2" size={16}/></button>
+                  </div>
+                ))}
+                <button className="btn btn-outline mt-8" onClick={()=>navigate('shop')}><Icon name="arrow-left" size={15}/> Continue Shopping</button>
+              </div>
+
+              <div className="order-summary">
+                <h3>Order Summary</h3>
+                <div className="summary-row"><span>Subtotal</span><span className="mono">{PKR(subtotal)}</span></div>
+                {applied && <div className="summary-row" style={{color:'var(--mint)'}}><span>Discount ({applied.code})</span><span className="mono">-{PKR(discount)}</span></div>}
+                <div className="summary-row"><span>Shipping</span><span className="mono">{shipping===0 ? 'Free' : PKR(shipping)}</span></div>
+                <div className="summary-row total"><span>Total</span><span>{PKR(total)}</span></div>
+
+                <form className="coupon-row" onSubmit={applyCoupon}>
+                  <input type="text" placeholder="Coupon code (try CHEZZY10)" value={coupon} onChange={e=>setCoupon(e.target.value)} aria-label="Coupon code"/>
+                  <button className="btn btn-sm btn-dark" type="submit">Apply</button>
+                </form>
+                {applied===null && coupon && <p style={{fontSize:'12px',color:'var(--flash)',marginBottom:'10px'}}>Invalid coupon code.</p>}
+
+                <button className="btn btn-primary btn-block" onClick={()=>navigate('checkout')}>Proceed to Checkout <Icon name="arrow-right" size={16}/></button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+    </>
+  );
+}
+
+/* ============== CHECKOUT PAGE ============== */
+function CheckoutPage({ cart, navigate, onPlaceOrder }) {
+  const [payment, setPayment] = useState('cod');
+  const subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const shipping = subtotal > 3000 || subtotal===0 ? 0 : 200;
+  const total = subtotal + shipping;
+
+  const payOptions = [
+    { id:'cod', name:'Cash on Delivery', desc:'Pay when your order arrives', ic:'COD' },
+    { id:'bank', name:'Bank Transfer', desc:'Transfer to our account & share receipt', ic:'BNK' },
+    { id:'jazzcash', name:'JazzCash', desc:'Pay instantly via JazzCash wallet', ic:'JC' },
+    { id:'easypaisa', name:'Easypaisa', desc:'Pay instantly via Easypaisa wallet', ic:'EP' },
+  ];
+
+  function submit(e){
+    e.preventDefault();
+    onPlaceOrder();
+  }
+
+  return (
+    <>
+      <div className="page-header">
+        <div className="wrap">
+          <h1>Checkout</h1>
+          <div className="crumbs"><a href="#" onClick={(e)=>{e.preventDefault();navigate('home');}}>Home</a> / <a href="#" onClick={(e)=>{e.preventDefault();navigate('cart');}}>Cart</a> / Checkout</div>
+        </div>
+      </div>
+      <section>
+        <div className="wrap">
+          <form className="checkout-layout" onSubmit={submit}>
+            <div>
+              <div className="form-card">
+                <h3><span className="step-num">1</span> Customer Details</h3>
+                <div className="form-grid">
+                  <div className="form-field"><label htmlFor="name">Full Name</label><input id="name" required placeholder="Ali Raza" /></div>
+                  <div className="form-field"><label htmlFor="phone">Phone Number</label><input id="phone" required placeholder="03XX-XXXXXXX" /></div>
+                  <div className="form-field"><label htmlFor="email">Email Address</label><input id="email" type="email" required placeholder="you@example.com" /></div>
+                  <div className="form-field"><label htmlFor="city">City</label><input id="city" required placeholder="Lahore" /></div>
+                  <div className="form-field full"><label htmlFor="address">Delivery Address</label><textarea id="address" rows="3" required placeholder="House #, Street, Area, Landmark"></textarea></div>
+                </div>
+              </div>
+
+              <div className="form-card">
+                <h3><span className="step-num">2</span> Payment Method</h3>
+                <div className="payment-options">
+                  {payOptions.map(o => (
+                    <label key={o.id} className={`pay-option ${payment===o.id?'selected':''}`}>
+                      <input type="radio" name="payment" checked={payment===o.id} onChange={()=>setPayment(o.id)} />
+                      <span className="pay-ic">{o.ic}</span>
+                      <span>
+                        <div className="pay-name">{o.name}</div>
+                        <div className="pay-desc">{o.desc}</div>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                {(payment==='jazzcash' || payment==='easypaisa') && (
+                  <div className="form-grid mt-8">
+                    <div className="form-field full"><label>{payment==='jazzcash'?'JazzCash':'Easypaisa'} Account Number</label><input required placeholder="03XX-XXXXXXX" /></div>
+                  </div>
+                )}
+                {payment==='bank' && (
+                  <p className="text-muted mt-8" style={{fontSize:'13px'}}>Account details will be shared via email/WhatsApp after order confirmation.</p>
+                )}
+              </div>
+            </div>
+
+            <div className="order-summary">
+              <h3>Order Summary</h3>
+              {cart.length===0 && <p className="text-muted" style={{fontSize:'14px'}}>Your cart is empty.</p>}
+              {cart.map(item => (
+                <div className="summary-row" key={item.id}><span>{item.name} × {item.qty}</span><span className="mono">{PKR(item.price*item.qty)}</span></div>
+              ))}
+              <div className="summary-row"><span>Subtotal</span><span className="mono">{PKR(subtotal)}</span></div>
+              <div className="summary-row"><span>Shipping</span><span className="mono">{shipping===0?'Free':PKR(shipping)}</span></div>
+              <div className="summary-row total"><span>Total</span><span>{PKR(total)}</span></div>
+              <button className="btn btn-primary btn-block mt-8" type="submit" disabled={cart.length===0}><Icon name="lock" size={16}/> Place Order</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </>
+  );
+}
+
+/* ============== USER DASHBOARD ============== */
+function UserDashboard({ wishlist, onToggleWish, navigate, onView }) {
+  const [tab, setTab] = useState('orders');
+
+  const tabs = [
+    { id:'orders', label:'My Orders', icon:'package' },
+    { id:'wishlist', label:'Wishlist', icon:'heart' },
+    { id:'addresses', label:'Addresses', icon:'map-pin' },
+    { id:'settings', label:'Account Settings', icon:'settings' },
+  ];
+
+  return (
+    <>
+      <div className="page-header">
+        <div className="wrap">
+          <h1>My Account</h1>
+          <div className="crumbs"><a href="#" onClick={(e)=>{e.preventDefault();navigate('home');}}>Home</a> / My Account</div>
+        </div>
+      </div>
+      <section>
+        <div className="wrap">
+          <div className="dash-layout">
+            <aside className="dash-side">
+              <div className="dash-user">
+                <div className="dash-avatar">UM</div>
+                <div>
+                  <div style={{fontWeight:700}}>Usman Malik</div>
+                  <div style={{fontSize:'12px',color:'#9CA1AE'}}>usman@example.com</div>
+                </div>
+              </div>
+              <nav className="dash-nav">
+                {tabs.map(t => (
+                  <button key={t.id} className={tab===t.id?'active':''} onClick={()=>setTab(t.id)}>
+                    <Icon name={t.icon} size={16}/> {t.label}
+                  </button>
+                ))}
+                <button onClick={()=>navigate('admin')}><Icon name="shield" size={16}/> Admin Dashboard</button>
+              </nav>
+            </aside>
+
+            <div>
+              {tab==='orders' && (
+                <div className="dash-card">
+                  <h3>My Orders</h3>
+                  <div className="row-flex">
+                    <table className="data-table">
+                      <thead><tr><th>Order ID</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th></tr></thead>
+                      <tbody>
+                        {ORDERS.map(o => (
+                          <tr key={o.id}>
+                            <td className="mono">{o.id}</td>
+                            <td>{o.date}</td>
+                            <td>{o.items}</td>
+                            <td className="mono">{PKR(o.total)}</td>
+                            <td><span className={`status-pill ${o.status}`}>{o.status[0].toUpperCase()+o.status.slice(1)}</span></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {tab==='wishlist' && (
+                <div className="dash-card">
+                  <h3>My Wishlist</h3>
+                  {wishlist.length===0 ? (
+                    <div className="empty-state">
+                      <div className="ic">💛</div>
+                      <h3>No items yet</h3>
+                      <p>Tap the heart icon on any product to save it here.</p>
+                    </div>
+                  ) : (
+                    <div className="product-grid">
+                      {wishlist.map(p => (
+                        <ProductCard key={p.id} p={p} onAddCart={()=>{}} onToggleWish={onToggleWish} isWished={true} onView={onView}/>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {tab==='addresses' && (
+                <div className="dash-card">
+                  <h3>Saved Addresses</h3>
+                  <div className="form-card" style={{marginBottom:'14px'}}>
+                    <div className="flex-center" style={{justifyContent:'space-between'}}>
+                      <div>
+                        <strong>Home</strong>
+                        <p className="text-muted" style={{fontSize:'14px',marginTop:'4px'}}>House 12, Street 5, DHA Phase 6, Lahore</p>
+                      </div>
+                      <span className="status-pill processing">Default</span>
+                    </div>
+                  </div>
+                  <div className="form-card">
+                    <strong>Office</strong>
+                    <p className="text-muted" style={{fontSize:'14px',marginTop:'4px'}}>3rd Floor, Tech Plaza, Blue Area, Islamabad</p>
+                  </div>
+                  <button className="btn btn-outline mt-8"><Icon name="plus" size={15}/> Add New Address</button>
+                </div>
+              )}
+
+              {tab==='settings' && (
+                <div className="dash-card">
+                  <h3>Account Settings</h3>
+                  <div className="form-grid">
+                    <div className="form-field"><label>Full Name</label><input defaultValue="Usman Malik" /></div>
+                    <div className="form-field"><label>Phone</label><input defaultValue="0300-1234567" /></div>
+                    <div className="form-field"><label>Email</label><input defaultValue="usman@example.com" type="email" /></div>
+                    <div className="form-field"><label>Password</label><input type="password" defaultValue="••••••••" /></div>
+                  </div>
+                  <button className="btn btn-primary mt-8" type="button">Save Changes</button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+/* ============== ADMIN DASHBOARD ============== */
+function AdminDashboard({ navigate }) {
+  const [tab, setTab] = useState('overview');
+
+  const navItems = [
+    { id:'overview', label:'Overview', icon:'layout-dashboard' },
+    { id:'products', label:'Products', icon:'box' },
+    { id:'categories', label:'Categories', icon:'layout-grid' },
+    { id:'orders', label:'Orders', icon:'shopping-bag' },
+    { id:'coupons', label:'Coupons', icon:'ticket' },
+    { id:'users', label:'Users', icon:'users' },
+    { id:'reviews', label:'Reviews', icon:'star' },
+  ];
+
+  const stats = [
+    { label:'Total Sales', value: PKR(1284500), icon:'trending-up', delta:'+12.4%', up:true, bg:'var(--cheddar)' },
+    { label:'Orders', value: '342', icon:'shopping-bag', delta:'+8.1%', up:true, bg:'var(--mint)' },
+    { label:'Customers', value: '1,206', icon:'users', delta:'+3.6%', up:true, bg:'var(--violet)', light:true },
+    { label:'Revenue (MTD)', value: PKR(412900), icon:'wallet', delta:'-2.3%', up:false, bg:'var(--flash)', light:true },
+  ];
+
+  return (
+    <>
+      <div className="page-header">
+        <div className="wrap">
+          <h1>Admin Dashboard</h1>
+          <div className="crumbs"><a href="#" onClick={(e)=>{e.preventDefault();navigate('home');}}>Home</a> / Admin</div>
+        </div>
+      </div>
+      <section>
+        <div className="wrap">
+          <div className="dash-layout">
+            <aside className="dash-side">
+              <div className="dash-user">
+                <div className="dash-avatar">AD</div>
+                <div>
+                  <div style={{fontWeight:700}}>Admin</div>
+                  <div style={{fontSize:'12px',color:'#9CA1AE'}}>Chezzy Shop HQ</div>
+                </div>
+              </div>
+              <nav className="dash-nav">
+                {navItems.map(n => (
+                  <button key={n.id} className={tab===n.id?'active':''} onClick={()=>setTab(n.id)}>
+                    <Icon name={n.icon} size={16}/> {n.label}
+                  </button>
+                ))}
+                <button onClick={()=>navigate('dashboard')}><Icon name="user" size={16}/> User Dashboard</button>
+              </nav>
+            </aside>
+
+            <div>
+              {tab==='overview' && (
+                <>
+                  <div className="stat-grid">
+                    {stats.map((s,i)=>(
+                      <div className="stat-card" key={i}>
+                        <div className="stat-ic" style={{background:s.bg, color: s.light ? '#fff':'var(--ink)'}}><Icon name={s.icon} size={20}/></div>
+                        <div className="stat-val">{s.value}</div>
+                        <div className="stat-lab">{s.label}</div>
+                        <div className={`stat-delta ${s.up?'up':'down'}`}><Icon name={s.up?'arrow-up-right':'arrow-down-right'} size={13}/> {s.delta} this month</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="dash-card">
+                    <h3>Recent Orders</h3>
+                    <div className="row-flex">
+                      <table className="data-table">
+                        <thead><tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Total</th><th>Status</th><th></th></tr></thead>
+                        <tbody>
+                          {ADMIN_ORDERS.map(o=>(
+                            <tr key={o.id}>
+                              <td className="mono">{o.id}</td>
+                              <td>{o.customer}</td>
+                              <td>{o.date}</td>
+                              <td className="mono">{PKR(o.total)}</td>
+                              <td><span className={`status-pill ${o.status}`}>{o.status[0].toUpperCase()+o.status.slice(1)}</span></td>
+                              <td><div className="admin-table-actions"><button className="icon-sm" aria-label="View order"><Icon name="eye" size={14}/></button></div></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {tab==='products' && (
+                <div className="dash-card">
+                  <div className="flex-center" style={{justifyContent:'space-between',marginBottom:'16px'}}>
+                    <h3 className="mb-0">Products</h3>
+                    <button className="btn btn-sm btn-primary"><Icon name="plus" size={14}/> Add Product</button>
+                  </div>
+                  <div className="row-flex">
+                    <table className="data-table">
+                      <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Rating</th><th></th></tr></thead>
+                      <tbody>
+                        {PRODUCTS.slice(0,8).map(p=>(
+                          <tr key={p.id}>
+                            <td>{p.icon} {p.name}</td>
+                            <td>{p.cat}</td>
+                            <td className="mono">{PKR(p.price)}</td>
+                            <td>{p.stockCount}</td>
+                            <td>{p.rating} ★</td>
+                            <td><div className="admin-table-actions">
+                              <button className="icon-sm" aria-label="Edit"><Icon name="pencil" size={14}/></button>
+                              <button className="icon-sm" aria-label="Delete"><Icon name="trash-2" size={14}/></button>
+                            </div></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {tab==='categories' && (
+                <div className="dash-card">
+                  <div className="flex-center" style={{justifyContent:'space-between',marginBottom:'16px'}}>
+                    <h3 className="mb-0">Categories</h3>
+                    <button className="btn btn-sm btn-primary"><Icon name="plus" size={14}/> Add Category</button>
+                  </div>
+                  <div className="row-flex">
+                    <table className="data-table">
+                      <thead><tr><th>Category</th><th>Products</th><th></th></tr></thead>
+                      <tbody>
+                        {CATEGORIES.map(c=>(
+                          <tr key={c.id}>
+                            <td>{c.icon} {c.name}</td>
+                            <td>{PRODUCTS.filter(p=>p.cat===c.name).length}</td>
+                            <td><div className="admin-table-actions">
+                              <button className="icon-sm" aria-label="Edit"><Icon name="pencil" size={14}/></button>
+                              <button className="icon-sm" aria-label="Delete"><Icon name="trash-2" size={14}/></button>
+                            </div></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {tab==='orders' && (
+                <div className="dash-card">
+                  <h3>All Orders</h3>
+                  <div className="row-flex">
+                    <table className="data-table">
+                      <thead><tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Total</th><th>Status</th><th></th></tr></thead>
+                      <tbody>
+                        {ADMIN_ORDERS.map(o=>(
+                          <tr key={o.id}>
+                            <td className="mono">{o.id}</td>
+                            <td>{o.customer}</td>
+                            <td>{o.date}</td>
+                            <td className="mono">{PKR(o.total)}</td>
+                            <td><span className={`status-pill ${o.status}`}>{o.status[0].toUpperCase()+o.status.slice(1)}</span></td>
+                            <td><div className="admin-table-actions"><button className="icon-sm" aria-label="View"><Icon name="eye" size={14}/></button></div></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {tab==='coupons' && (
+                <div className="dash-card">
+                  <div className="flex-center" style={{justifyContent:'space-between',marginBottom:'16px'}}>
+                    <h3 className="mb-0">Coupons</h3>
+                    <button className="btn btn-sm btn-primary"><Icon name="plus" size={14}/> Add Coupon</button>
+                  </div>
+                  <div className="row-flex">
+                    <table className="data-table">
+                      <thead><tr><th>Code</th><th>Discount</th><th>Expiry</th><th>Status</th><th></th></tr></thead>
+                      <tbody>
+                        <tr><td className="mono">CHEZZY10</td><td>10%</td><td>2026-12-31</td><td><span className="status-pill delivered">Active</span></td><td><div className="admin-table-actions"><button className="icon-sm" aria-label="Edit"><Icon name="pencil" size={14}/></button></div></td></tr>
+                        <tr><td className="mono">EID2026</td><td>20%</td><td>2026-06-30</td><td><span className="status-pill processing">Scheduled</span></td><td><div className="admin-table-actions"><button className="icon-sm" aria-label="Edit"><Icon name="pencil" size={14}/></button></div></td></tr>
+                        <tr><td className="mono">WELCOME50</td><td>Rs 50</td><td>2026-01-01</td><td><span className="status-pill cancelled">Expired</span></td><td><div className="admin-table-actions"><button className="icon-sm" aria-label="Edit"><Icon name="pencil" size={14}/></button></div></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {tab==='users' && (
+                <div className="dash-card">
+                  <h3>Users</h3>
+                  <div className="row-flex">
+                    <table className="data-table">
+                      <thead><tr><th>Name</th><th>Email</th><th>Orders</th><th>Joined</th><th></th></tr></thead>
+                      <tbody>
+                        {['Ayesha Khan','Hamza Tariq','Sara Ahmed','Bilal Raza','Mehwish Ali'].map((n,i)=>(
+                          <tr key={i}>
+                            <td>{n}</td>
+                            <td className="mono">{n.toLowerCase().replace(' ','.')}@example.com</td>
+                            <td>{[3,1,2,1,5][i]}</td>
+                            <td>2026-0{i+1}-12</td>
+                            <td><div className="admin-table-actions"><button className="icon-sm" aria-label="View"><Icon name="eye" size={14}/></button></div></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {tab==='reviews' && (
+                <div className="dash-card">
+                  <h3>Reviews</h3>
+                  {TESTIMONIALS.map((t,i)=>(
+                    <div className="review-item" key={i}>
+                      <div className="review-head">
+                        <strong>{t.name}</strong>
+                        <span className="testi-stars">{'★'.repeat(t.stars)}{'☆'.repeat(5-t.stars)}</span>
+                      </div>
+                      <p className="text-muted" style={{fontSize:'14px'}}>{t.quote}</p>
+                      <div className="admin-table-actions mt-8">
+                        <button className="icon-sm" aria-label="Approve"><Icon name="check" size={14}/></button>
+                        <button className="icon-sm" aria-label="Delete"><Icon name="trash-2" size={14}/></button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+/* ============== FOOTER ============== */
+function Footer({ navigate }) {
+  return (
+    <footer className="site">
+      <div className="wrap">
+        <div className="footer-grid">
+          <div className="footer-brand">
+            <div className="logo">
+              <span className="logo-mark">C</span>
+              <span className="logo-text" style={{color:'#fff'}}>Chezzy<span>Shop</span></span>
+            </div>
+            <p>Premium products, unbeatable prices and fast delivery — Chezzy Shop is built for the way Pakistan shops online.</p>
+            <div className="social-row">
+              <a href="#" aria-label="Facebook"><Icon name="facebook" size={16}/></a>
+              <a href="#" aria-label="Instagram"><Icon name="instagram" size={16}/></a>
+              <a href="#" aria-label="TikTok"><Icon name="music-2" size={16}/></a>
+              <a href="#" aria-label="YouTube"><Icon name="youtube" size={16}/></a>
+            </div>
+          </div>
+          <div>
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="#" onClick={(e)=>{e.preventDefault();navigate('home');}}>Home</a></li>
+              <li><a href="#" onClick={(e)=>{e.preventDefault();navigate('shop');}}>Shop</a></li>
+              <li><a href="#" onClick={(e)=>{e.preventDefault();navigate('about');}}>About Us</a></li>
+              <li><a href="#" onClick={(e)=>{e.preventDefault();navigate('contact');}}>Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Account</h4>
+            <ul>
+              <li><a href="#" onClick={(e)=>{e.preventDefault();navigate('dashboard');}}>My Orders</a></li>
+              <li><a href="#" onClick={(e)=>{e.preventDefault();navigate('dashboard');}}>Wishlist</a></li>
+              <li><a href="#" onClick={(e)=>{e.preventDefault();navigate('cart');}}>Cart</a></li>
+              <li><a href="#" onClick={(e)=>{e.preventDefault();navigate('admin');}}>Admin Dashboard</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Contact Us</h4>
+            <div className="footer-contact">
+              <a href="https://wa.me/923256183357" target="_blank" rel="noopener"><Icon name="message-circle" size={16}/> WhatsApp: 0325-6183357</a>
+              <a href="mailto:support@chezzyshop.com"><Icon name="mail" size={16}/> support@chezzyshop.com</a>
+              <span className="flex-center gap-8"><Icon name="map-pin" size={16}/> Lahore, Pakistan</span>
+            </div>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <span>© 2026 Chezzy Shop. All rights reserved.</span>
+          <span>Made with 🧡 in Pakistan</span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ============== SIMPLE PAGES (About / Contact) ============== */
+function AboutPage({ navigate }) {
+  return (
+    <>
+      <div className="page-header">
+        <div className="wrap">
+          <h1>About Chezzy Shop</h1>
+          <div className="crumbs"><a href="#" onClick={(e)=>{e.preventDefault();navigate('home');}}>Home</a> / About Us</div>
+        </div>
+      </div>
+      <section>
+        <div className="wrap" style={{maxWidth:'760px'}}>
+          <p style={{fontSize:'16px',lineHeight:1.8,color:'var(--ink-soft)',marginBottom:'18px'}}>
+            Chezzy Shop started with one goal: make premium products affordable and accessible across Pakistan. From electronics and gaming gear to fashion, watches, home essentials and accessories — we hand-pick every product for quality, then deliver it to your door, fast.
+          </p>
+          <p style={{fontSize:'16px',lineHeight:1.8,color:'var(--ink-soft)'}}>
+            With secure payment options including Cash on Delivery, Bank Transfer, JazzCash and Easypaisa, plus a support team that's online around the clock, we're here to make online shopping simple, safe and a little more fun.
+          </p>
+          <button className="btn btn-primary mt-8" onClick={()=>navigate('shop')}>Browse Products <Icon name="arrow-right" size={16}/></button>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function ContactPage({ navigate }) {
+  return (
+    <>
+      <div className="page-header">
+        <div className="wrap">
+          <h1>Contact Us</h1>
+          <div className="crumbs"><a href="#" onClick={(e)=>{e.preventDefault();navigate('home');}}>Home</a> / Contact</div>
+        </div>
+      </div>
+      <section>
+        <div className="wrap">
+          <div className="checkout-layout">
+            <div className="form-card">
+              <h3>Send us a message</h3>
+              <form onSubmit={e=>e.preventDefault()}>
+                <div className="form-grid">
+                  <div className="form-field"><label>Name</label><input required placeholder="Your name" /></div>
+                  <div className="form-field"><label>Email</label><input type="email" required placeholder="you@example.com" /></div>
+                  <div className="form-field full"><label>Message</label><textarea rows="5" required placeholder="How can we help?"></textarea></div>
+                </div>
+                <button className="btn btn-primary mt-8" type="submit">Send Message</button>
+              </form>
+            </div>
+            <div className="dash-card">
+              <h3>Get in touch</h3>
+              <div className="footer-contact" style={{color:'var(--ink-soft)'}}>
+                <a href="https://wa.me/923256183357" target="_blank" rel="noopener" style={{color:'var(--ink)'}}><Icon name="message-circle" size={16}/> WhatsApp: 0325-6183357</a>
+                <a href="mailto:support@chezzyshop.com" style={{color:'var(--ink)'}}><Icon name="mail" size={16}/> support@chezzyshop.com</a>
+                <span className="flex-center gap-8"><Icon name="map-pin" size={16}/> Lahore, Pakistan</span>
+                <span className="flex-center gap-8"><Icon name="clock" size={16}/> Support available 24/7</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+/* ============== APP ROOT ============== */
+function App() {
+  const [route, setRoute] = useState('home');
+  const [activeProduct, setActiveProduct] = useState(PRODUCTS[0]);
+  const [cart, setCart] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
+  const [toast, setToast] = useState(null);
+  const [catFilter, setCatFilter] = useState(null);
+
+  function navigate(r){
+    setRoute(r);
+    window.scrollTo({top:0, behavior:'instant'});
+  }
+
+  function showToast(msg){ setToast(msg); }
+
+  function addToCart(product, qty=1){
+    setCart(c => {
+      const existing = c.find(i=>i.id===product.id);
+      if (existing) return c.map(i=>i.id===product.id ? {...i, qty:i.qty+qty} : i);
+      return [...c, {...product, qty}];
+    });
+    showToast(`${product.name} added to cart`);
+  }
+
+  function updateQty(id, delta){
+    setCart(c => c.map(i => i.id===id ? {...i, qty: Math.max(1, i.qty+delta)} : i));
+  }
+
+  function removeItem(id){
+    setCart(c => c.filter(i=>i.id!==id));
+  }
+
+  function toggleWish(product){
+    setWishlist(w => {
+      const exists = w.some(i=>i.id===product.id);
+      if (exists){ showToast(`Removed from wishlist`); return w.filter(i=>i.id!==product.id); }
+      showToast(`Added to wishlist`);
+      return [...w, product];
+    });
+  }
+
+  function viewProduct(product){
+    setActiveProduct(product);
+    navigate('product');
+  }
+
+  function placeOrder(){
+    setCart([]);
+    showToast('Order placed successfully! 🎉');
+    navigate('dashboard');
+  }
+
+  const cartCount = cart.reduce((s,i)=>s+i.qty,0);
+
+  let page;
+  switch(route){
+    case 'home': page = <HomePage navigate={navigate} onAddCart={addToCart} onToggleWish={toggleWish} wishlist={wishlist} onView={viewProduct} setCatFilter={setCatFilter}/>; break;
+    case 'shop': page = <ShopPage onAddCart={addToCart} onToggleWish={toggleWish} wishlist={wishlist} onView={viewProduct} catFilter={catFilter} setCatFilter={setCatFilter}/>; break;
+    case 'product': page = <ProductPage product={activeProduct} navigate={navigate} onAddCart={addToCart} onToggleWish={toggleWish} isWished={wishlist.some(w=>w.id===activeProduct.id)}/>; break;
+    case 'cart': page = <CartPage cart={cart} updateQty={updateQty} removeItem={removeItem} navigate={navigate}/>; break;
+    case 'checkout': page = <CheckoutPage cart={cart} navigate={navigate} onPlaceOrder={placeOrder}/>; break;
+    case 'dashboard': page = <UserDashboard wishlist={wishlist} onToggleWish={toggleWish} navigate={navigate} onView={viewProduct}/>; break;
+    case 'admin': page = <AdminDashboard navigate={navigate}/>; break;
+    case 'about': page = <AboutPage navigate={navigate}/>; break;
+    case 'contact': page = <ContactPage navigate={navigate}/>; break;
+    default: page = <HomePage navigate={navigate} onAddCart={addToCart} onToggleWish={toggleWish} wishlist={wishlist} onView={viewProduct} setCatFilter={setCatFilter}/>;
+  }
+
+  return (
+    <>
+      <Header route={route} navigate={navigate} cartCount={cartCount} wishCount={wishlist.length} />
+      <main id="main">{page}</main>
+      <Footer navigate={navigate} />
+      {toast && <Toast message={toast} onClose={()=>setToast(null)} />}
+    </>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>
